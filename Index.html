@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Діагностика харчової поведінки</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FAF7F2;
+    --warm: #F2EBE0;
+    --rose: #C4956A;
+    --deep: #2C2420;
+    --muted: #8B7B72;
+    --accent: #9B6B4E;
+    --soft: #E8DDD5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--deep);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: 
+      radial-gradient(ellipse at 20% 20%, rgba(196,149,106,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(155,107,78,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 540px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* SCREENS */
+  .screen { display: none; animation: fadeUp 0.5s ease forwards; }
+  .screen.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* INTRO */
+  .intro-card {
+    background: white;
+    border-radius: 24px;
+    padding: 48px 40px;
+    box-shadow: 0 8px 40px rgba(44,36,32,0.08), 0 1px 0 rgba(196,149,106,0.2);
+    text-align: center;
+  }
+
+  .logo-mark {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 32px;
+    background: linear-gradient(135deg, var(--rose), var(--accent));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+  }
+
+  .intro-card h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    color: var(--deep);
+  }
+
+  .intro-card h1 em {
+    font-style: italic;
+    color: var(--rose);
+  }
+
+  .intro-card p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .badge-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 24px 0 32px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    background: var(--warm);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .note {
+    background: var(--warm);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 32px;
+    text-align: left;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--rose), var(--accent));
+    color: white;
+    border: none;
+    border-radius: 16px;
+    padding: 18px 36px;
+    font-size: 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.3s ease;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(196,149,106,0.35);
+  }
+
+  .btn-primary:active { transform: translateY(0); }
+
+  /* PROGRESS */
+  .progress-bar {
+    background: var(--soft);
+    border-radius: 100px;
+    height: 4px;
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--rose), var(--accent));
+    border-radius: 100px;
+    transition: width 0.4s ease;
+  }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 8px 40px rgba(44,36,32,0.08);
+  }
+
+  .question-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+  }
+
+  .q-number {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .section-tag {
+    background: var(--warm);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--rose);
+    font-weight: 500;
+  }
+
+  .question-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--deep);
+    margin-bottom: 32px;
+  }
+
+  /* OPTIONS */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    background: var(--cream);
+    border: 1.5px solid var(--soft);
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--deep);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .option-btn:hover {
+    border-color: var(--rose);
+    background: white;
+    transform: translateX(4px);
+  }
+
+  .option-btn.selected {
+    border-color: var(--rose);
+    background: linear-gradient(135deg, rgba(196,149,106,0.08), rgba(155,107,78,0.05));
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .option-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid var(--soft);
+    flex-shrink: 0;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .option-btn.selected .option-dot {
+    background: var(--rose);
+    border-color: var(--rose);
+  }
+
+  .option-btn.selected .option-dot::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+  }
+
+  /* NAV */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 28px;
+  }
+
+  .btn-back {
+    background: none;
+    border: 1.5px solid var(--soft);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 14px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .btn-back:hover { border-color: var(--rose); color: var(--rose); }
+
+  .btn-next {
+    background: linear-gradient(135deg, var(--rose), var(--accent));
+    border: none;
+    border-radius: 12px;
+    padding: 12px 28px;
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.3s;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .btn-next.enabled {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .btn-next.enabled:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(196,149,106,0.35);
+  }
+
+  /* RESULT */
+  .result-card {
+    background: white;
+    border-radius: 24px;
+    padding: 48px 40px;
+    box-shadow: 0 8px 40px rgba(44,36,32,0.08);
+    text-align: center;
+  }
+
+  .result-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+
+  .result-card h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 400;
+    margin-bottom: 16px;
+    color: var(--deep);
+  }
+
+  .result-score {
+    display: inline-block;
+    background: var(--warm);
+    border-radius: 100px;
+    padding: 8px 24px;
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .result-score span {
+    font-weight: 600;
+    color: var(--rose);
+  }
+
+  .result-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--muted);
+    margin-bottom: 32px;
+    text-align: left;
+  }
+
+  .result-cta {
+    background: linear-gradient(135deg, rgba(196,149,106,0.1), rgba(155,107,78,0.05));
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+
+  .result-cta h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 400;
+    margin-bottom: 10px;
+    color: var(--deep);
+  }
+
+  .result-cta p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--soft);
+    margin: 28px 0;
+  }
+
+  .disclaimer {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    text-align: left;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- INTRO -->
+  <div class="screen active" id="screen-intro">
+    <div class="intro-card">
+      <div class="logo-mark">🌿</div>
+      <h1>Як ти<br><em>ставишся до їжі?</em></h1>
+      <p>Короткий діагностичний тест, який допоможе краще зрозуміти твої стосунки з їжею.</p>
+      <div class="badge-row">
+        <span class="badge">26 питань</span>
+        <span class="badge">~5 хвилин</span>
+        <span class="badge">Анонімно</span>
+      </div>
+      <div class="note">
+        🔒 Це тест EAT-26 — стандартизований інструмент, що використовується спеціалістами. Він не є медичним діагнозом. Результати побачиш лише ти.
+      </div>
+      <button class="btn-primary" onclick="startTest()">Почати тест →</button>
+    </div>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div class="screen" id="screen-question">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div class="question-card">
+      <div class="question-meta">
+        <span class="q-number" id="q-number">Питання 1 з 26</span>
+        <span class="section-tag" id="section-tag">Розділ A</span>
+      </div>
+      <p class="question-text" id="question-text"></p>
+      <div class="options" id="options-container"></div>
+      <div class="nav-row">
+        <button class="btn-back" id="btn-back" onclick="prevQuestion()">← Назад</button>
+        <button class="btn-next" id="btn-next" onclick="nextQuestion()">Далі →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="screen-result">
+    <div class="result-card" id="result-card"></div>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  // Section A (питання 1–13): Дієтична поведінка
+  { text: "Я навмисно їм менше, щоб схуднути.", section: "Дієта" },
+  { text: "Я уникаю їжі з високим вмістом вуглеводів (хліб, картопля, рис тощо).", section: "Дієта" },
+  { text: "Я відчуваю, що їжа контролює моє життя.", section: "Дієта" },
+  { text: "Я думаю про їжу дуже часто.", section: "Дієта" },
+  { text: "Я відчуваю провину після того, як поїла.", section: "Дієта" },
+  { text: "Я відчуваю, що інші хотіли б, щоб я їла більше.", section: "Дієта" },
+  { text: "Я повертаюся до їжі після того, як намагалася обмежити себе.", section: "Дієта" },
+  { text: "Я усвідомлено контролюю те, що їм.", section: "Дієта" },
+  { text: "Мені здається, що я занадто думаю про бажання бути худою.", section: "Дієта" },
+  { text: "Я відчуваю себе некомфортно після того, як з'їдаю солодке.", section: "Дієта" },
+  { text: "Я займаюся дієтами.", section: "Дієта" },
+  { text: "Я люблю, коли мій шлунок порожній.", section: "Дієта" },
+  { text: "Я їм дієтичні продукти.", section: "Дієта" },
+
+  // Section B (питання 14–19): Булімія та харчові порушення
+  { text: "Я з'їдаю так багато, що не можу зупинитися.", section: "Поведінка" },
+  { text: "Я думаю про спалювання калорій під час фізичних вправ.", section: "Поведінка" },
+  { text: "Після їжі мене нудить.", section: "Поведінка" },
+  { text: "Я не можу контролювати себе за їжею.", section: "Поведінка" },
+  { text: "Я відчуваю, що інші тиснуть на мене у питаннях їжі.", section: "Поведінка" },
+  { text: "Я витрачаю надто багато часу на думки про їжу.", section: "Поведінка" },
+
+  // Section C (питання 20–26): Оральний контроль
+  { text: "Я відчуваю дискомфорт після того, як поїла солодке.", section: "Контроль" },
+  { text: "Я займаюсь виснажливими фізичними вправами, щоб спалити калорії.", section: "Контроль" },
+  { text: "Мені подобається пробувати нову ситну їжу.", section: "Контроль" },
+  { text: "Я відчуваю, що інші хотіли б, щоб я їла більше.", section: "Контроль" },
+  { text: "Після великого прийому їжі мені хочеться блювати.", section: "Контроль" },
+  { text: "Я їм повільніше, ніж зазвичай.", section: "Контроль" },
+  { text: "Я відчуваю, що їжа — це засіб контролю.", section: "Контроль" },
+];
+
+const options = [
+  { label: "Завжди", score: 3 },
+  { label: "Дуже часто", score: 2 },
+  { label: "Часто", score: 1 },
+  { label: "Іноді", score: 0 },
+  { label: "Рідко", score: 0 },
+  { label: "Ніколи", score: 0 },
+];
+
+// Q22 is reverse scored (Never=3, Always=0)
+const reverseQ = [21]; // 0-indexed
+
+let current = 0;
+let answers = new Array(26).fill(null);
+
+function startTest() {
+  showScreen('screen-question');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  // re-trigger animation
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = '';
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  document.getElementById('q-number').textContent = `Питання ${current + 1} з 26`;
+  document.getElementById('section-tag').textContent = q.section;
+  document.getElementById('question-text').textContent = q.text;
+
+  const progress = ((current) / 26) * 100;
+  document.getElementById('progress-fill').style.width = progress + '%';
+
+  const container = document.getElementById('options-container');
+  container.innerHTML = '';
+
+  options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn' + (answers[current] === i ? ' selected' : '');
+    btn.innerHTML = `<span class="option-dot"></span>${opt.label}`;
+    btn.onclick = () => selectOption(i);
+    container.appendChild(btn);
+  });
+
+  const backBtn = document.getElementById('btn-back');
+  backBtn.style.visibility = current === 0 ? 'hidden' : 'visible';
+
+  updateNextBtn();
+}
+
+function selectOption(i) {
+  answers[current] = i;
+  document.querySelectorAll('.option-btn').forEach((btn, idx) => {
+    btn.classList.toggle('selected', idx === i);
+  });
+  updateNextBtn();
+}
+
+function updateNextBtn() {
+  const btn = document.getElementById('btn-next');
+  if (answers[current] !== null) {
+    btn.classList.add('enabled');
+    btn.textContent = current === 25 ? 'Переглянути результат →' : 'Далі →';
+  } else {
+    btn.classList.remove('enabled');
+    btn.textContent = 'Далі →';
+  }
+}
+
+function nextQuestion() {
+  if (answers[current] === null) return;
+  if (current < 25) {
+    current++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function prevQuestion() {
+  if (current > 0) {
+    current--;
+    renderQuestion();
+  }
+}
+
+function calcScore() {
+  let total = 0;
+  answers.forEach((ans, i) => {
+    if (ans === null) return;
+    let score;
+    if (reverseQ.includes(i)) {
+      score = options[5 - ans].score; // reverse
+    } else {
+      score = options[ans].score;
+    }
+    total += score;
+  });
+  return total;
+}
+
+function showResult() {
+  const score = calcScore();
+  document.getElementById('progress-fill').style.width = '100%';
+
+  let icon, title, text, cta;
+
+  if (score < 20) {
+    icon = '🌿';
+    title = 'Твої стосунки з їжею — відносно гармонійні';
+    text = `Результати тесту не показують виражених ознак порушень харчової поведінки. Проте якщо ти відчуваєш внутрішню напругу навколо їжі або свого тіла — це вже привід поговорити зі спеціалістом. Іноді дискомфорт існує ще до того, як він стає видимим у тесті.`;
+    cta = {
+      h: 'Хочеш розібратись глибше?',
+      p: 'Навіть без яскравих симптомів буває корисно поговорити. Я проводжу безкоштовну діагностичну сесію — напиши мені особисто.'
+    };
+  } else if (score < 30) {
+    icon = '🌸';
+    title = 'Є певна напруга у стосунках з їжею';
+    text = `Твій результат вказує на помірний рівень тривоги навколо харчування. Це не діагноз — але сигнал, що варто придивитись до своїх патернів. Такі переживання дуже поширені та добре піддаються роботі зі спеціалістом.`;
+    cta = {
+      h: 'Наступний крок — особиста розмова',
+      p: 'Я — спеціаліст з харчової поведінки. Пропоную безкоштовну 30-хвилинну діагностичну сесію, де ми розберемось, що відбувається саме у тебе.'
+    };
+  } else {
+    icon = '💛';
+    title = 'Твої стосунки з їжею потребують уваги';
+    text = `Результати вказують на виражені труднощі з харчовою поведінкою. Це не означає, що щось "не так" з тобою — просто твоя психіка знайшла певний спосіб справлятися. І з цим можна працювати. Важливо зробити перший крок.`;
+    cta = {
+      h: 'Ти не маєш розбиратись із цим сама',
+      p: 'Я спеціаліст з розладів харчової поведінки. Напиши мені — проведу безкоштовну діагностичну сесію та розповім, як я можу допомогти.'
+    };
+  }
+
+  const card = document.getElementById('result-card');
+  card.innerHTML = `
+    <div class="result-icon">${icon}</div>
+    <h2>${title}</h2>
+    <div class="result-score">Твій результат: <span>${score} балів</span></div>
+    <p class="result-text">${text}</p>
+    <div class="result-cta">
+      <h3>${cta.h}</h3>
+      <p>${cta.p}</p>
+    </div>
+    <button class="btn-primary" onclick="contactSpecialist()">Записатись на безкоштовну сесію →</button>
+    <hr class="divider">
+    <p class="disclaimer">⚠️ EAT-26 — скринінговий інструмент, а не клінічний діагноз. Результати не замінюють консультацію спеціаліста. Якщо ти переживаєш серйозні труднощі з їжею чи своїм тілом — будь ласка, зверніться до кваліфікованого фахівця.</p>
+  `;
+
+  showScreen('screen-result');
+}
+
+function contactSpecialist() {
+  // Тут можна вставити посилання на твій Telegram
+  alert('Напиши мені в Telegram: @твій_нік');
+  // або: window.open('https://t.me/твій_нік', '_blank');
+}
+</script>
+</body>
+</html>
